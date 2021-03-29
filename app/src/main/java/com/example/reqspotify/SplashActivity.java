@@ -23,8 +23,8 @@ public class SplashActivity extends AppCompatActivity {
 
     private RequestQueue queue;
 
-    private static final String CLIENT_ID = "d29acd0828f84b628b8600d2b91add9b";
-    private static final String REDIRECT_URI = "pruebaspotifyapi://callback";
+    private static final String CLIENT_ID = "69a48a944b0e4e8f908d0198a668fcdd";
+    private static final String REDIRECT_URI = "reqspotify://callback";
     private static final int REQUEST_CODE = 1337;
     private static final String SCOPES = "user-read-recently-played,user-library-modify,user-read-email,user-read-private";
 
