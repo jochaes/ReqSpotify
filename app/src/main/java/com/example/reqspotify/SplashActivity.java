@@ -96,6 +96,7 @@ public class SplashActivity extends AppCompatActivity {
                 default:
                     Log.d("STARTING", "Something happened...Don't know what...");
 
+                    
                     // Handle other cases
             }
         }
