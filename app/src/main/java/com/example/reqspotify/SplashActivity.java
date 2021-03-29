@@ -88,11 +88,14 @@ public class SplashActivity extends AppCompatActivity {
 
                 // Auth flow returned an error
                 case ERROR:
+                    Log.d("STARTING", "Whooouuups.. There was a problem... With logIn");
                     // Handle error response
                     break;
 
                 // Most likely auth flow was cancelled
                 default:
+                    Log.d("STARTING", "Something happened...Don't know what...");
+
                     // Handle other cases
             }
         }

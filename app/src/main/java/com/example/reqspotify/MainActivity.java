@@ -18,13 +18,11 @@ import com.spotify.protocol.types.Track;
 
 import com.example.reqspotify.Spotify;
 
+import Connectors.SongService;
+
 
 public class MainActivity extends AppCompatActivity {
-
-    //Acá se crea el objeto de spotify
-    String Client_Id = "69a48a944b0e4e8f908d0198a668fcdd";
-    String Redirect_URI = "reqspotify://callback";
-    Spotify spotify = new Spotify(Client_Id, Redirect_URI);
+    private SongService songService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,19 +33,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        songService = new SongService(getApplicationContext());
 
-        //Se conecta en este contexto
-        spotify.connect(this);
+        // We will start writing our code here.
+        getTracks();
 
     }
 
+    private void getTracks(){
+        songService.getTracks();
+    }
 
     @Override
     protected void onStop() {
         super.onStop();
-
-        // Se desconecta de spotify?
-        spotify.shutDown();
-
     }
 }
