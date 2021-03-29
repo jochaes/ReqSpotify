@@ -19,103 +19,38 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Album;
+import kaaes.spotify.webapi.android.models.Pager;
+import kaaes.spotify.webapi.android.models.Playlist;
+import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 public class SongService {
-    private ArrayList<Song> songs = new ArrayList<>();
     private SharedPreferences sharedPreferences;
     private RequestQueue queue;
+    SpotifyApi api;
+    SpotifyService spotify;
 
     public SongService(Context context) {
         sharedPreferences = context.getSharedPreferences("SPOTIFY", 0);
         queue = Volley.newRequestQueue(context);
+
+        api = new SpotifyApi();
+        api.setAccessToken(sharedPreferences.getString("token", ""));
+        spotify = api.getService();
     }
 
-    public ArrayList<Song> getSongs() {
-        return songs;
-    }
-
-    public ArrayList<Song> getRecentlyPlayedTracks(final VolleyCallback callBack) {
-        String endpoint = "https://api.spotify.com/v1/me/player/recently-played";
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, endpoint, null, response -> {
-                    Gson gson = new Gson();
-                    JSONArray jsonArray = response.optJSONArray("items");
-                    for (int n = 0; n < jsonArray.length(); n++) {
-                        try {
-                            JSONObject object = jsonArray.getJSONObject(n);
-                            object = object.optJSONObject("track");
-                            Song song = gson.fromJson(object.toString(), Song.class);
-                            songs.add(song);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    callBack.onSuccess();
-                }, error -> {
-                    // TODO: Handle error
-
-                }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> headers = new HashMap<>();
-                String token = sharedPreferences.getString("token", "");
-                String auth = "Bearer " + token;
-                headers.put("Authorization", auth);
-                return headers;
-            }
-        };
-        queue.add(jsonObjectRequest);
-        return songs;
-    }
-
-    public void addSongToLibrary(Song song) {
-        JSONObject payload = preparePutPayload(song);
-        JsonObjectRequest jsonObjectRequest = prepareSongLibraryRequest(payload);
-        queue.add(jsonObjectRequest);
-    }
-
-    private JsonObjectRequest prepareSongLibraryRequest(JSONObject payload) {
-        return new JsonObjectRequest(Request.Method.PUT, "https://api.spotify.com/v1/me/tracks", payload, response -> {
-        }, error -> {
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> headers = new HashMap<>();
-                String token = sharedPreferences.getString("token", "");
-                String auth = "Bearer " + token;
-                headers.put("Authorization", auth);
-                headers.put("Content-Type", "application/json");
-                return headers;
-            }
-        };
-    }
-
-    private JSONObject preparePutPayload(Song song) {
-        JSONArray idarray = new JSONArray();
-        idarray.put(song.getId());
-        JSONObject ids = new JSONObject();
-        try {
-            ids.put("ids", idarray);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return ids;
-    }
 
     ///Esto es super importante omg si sirvió jejeps
-    public void getTracks() {
-        SpotifyApi api = new SpotifyApi();
-        api.setAccessToken(sharedPreferences.getString("token", ""));
+    public void getAlbumName() {
 
-        SpotifyService spotify = api.getService();
         spotify.getAlbum("1GbtB4zTqAsyfZEsm1RZfx", new Callback<Album>() {
             @Override
             public void success(Album album, Response response) {
@@ -128,5 +63,42 @@ public class SongService {
             }
         });
 
+
     }
+
+    ///Esto es super importante omg si sirvió jejeps
+    public void getPlayListName() {
+        Playlist playlista = new Playlist();
+
+        spotify.getPlaylist(sharedPreferences.getString("userid", ""), "7wIcYj7ZvSLnTu2nFY4i6j", new Callback<Playlist>() {
+            @Override
+            public void success(Playlist playlist, Response response) {
+                Log.d("playlist success", playlist.name);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d("playlist failure", error.toString());
+            }
+        });
+    }
+
+    public void getPlaylistTracks(){
+       spotify.getPlaylistTracks(sharedPreferences.getString("userid", ""), "7wIcYj7ZvSLnTu2nFY4i6j", new Callback<Pager<PlaylistTrack>>() {
+            @Override
+            public void success(Pager<PlaylistTrack> playlistTrackPager, Response response) {
+                Log.e("TEST", "GOT the tracks in playlist");
+                List<PlaylistTrack> items = playlistTrackPager.items;
+                for( PlaylistTrack pt : items){
+                    Log.e("TEST", pt.track.name + " - " + pt.track.id);
+                }
+            }
+            @Override
+            public void failure(RetrofitError error) {
+                Log.e("TEST", "Could not get playlist tracks");
+            }
+        });
+
+    }
+
 }

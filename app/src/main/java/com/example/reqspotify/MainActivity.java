@@ -36,14 +36,22 @@ public class MainActivity extends AppCompatActivity {
         songService = new SongService(getApplicationContext());
 
         // We will start writing our code here.
-        getTracks();
+        //getTracks();
+        //getPlaylist();
+        getPLaylistTracks();
 
     }
 
     private void getTracks(){
-        songService.getTracks();
+        songService.getAlbumName();
     }
 
+    private void getPlaylist() {
+        songService.getPlayListName();
+    }
+    private void getPLaylistTracks(){
+        songService.getPlaylistTracks();
+    }
     @Override
     protected void onStop() {
         super.onStop();
