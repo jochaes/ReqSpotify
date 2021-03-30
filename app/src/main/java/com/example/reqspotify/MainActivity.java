@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
@@ -39,6 +40,23 @@ public class MainActivity extends AppCompatActivity {
         //Se conecta en este contexto
         spotify.connect(this);
 
+    }
+
+    public void musicplay(View v)
+    {
+        //TODO
+    }
+
+    // Pausing the music
+    public void musicpause(View v)
+    {
+        //TODO
+    }
+
+    // Stoping the music
+    public void musicstop(View v)
+    {
+        //TODO
     }
 
 
