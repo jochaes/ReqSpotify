@@ -2,6 +2,8 @@ package Connectors;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
@@ -14,16 +16,14 @@ import com.spotify.protocol.types.Track;
 
 
 public class Spotify {
-    private static String CLIENT_ID = "";
-    private static String REDIRECT_URI = "";
+    private static final String CLIENT_ID = "69a48a944b0e4e8f908d0198a668fcdd";
+    private static final String REDIRECT_URI = "reqspotify://callback";
 
     private SpotifyAppRemote mSpotifyAppRemote;
     private ConnectionParams connectionParams;
 
     //Crea el objeto y hace el build de los parametros para la conexión
-    public Spotify(String pCLIENT_ID, String pREDIRECT_URI){
-        CLIENT_ID = pCLIENT_ID;
-        REDIRECT_URI = pREDIRECT_URI;
+    public Spotify(){
         connectionParams = new ConnectionParams.Builder(CLIENT_ID)
                 .setRedirectUri(REDIRECT_URI)
                 .showAuthView(true)
@@ -39,23 +39,28 @@ public class Spotify {
                     @Override
                     public void onConnected(SpotifyAppRemote spotifyAppRemote) {
                         mSpotifyAppRemote = spotifyAppRemote;
-                        Log.d("MainActivity", "Connected! Yay!");
+                        Log.d("SpotifyPlayer", "Connected! Yay!");
+                        Toast.makeText(pContext, "Connected to Spotify Player", Toast.LENGTH_SHORT).show();
                         // Now you can start interacting with App Remote
-                        connected();
                     }
 
                     //DEspliega un error, cuando no se puede conectar
                     @Override
                     public void onFailure(Throwable throwable) {
-                        Log.e("MainActivity", throwable.getMessage(), throwable);
+                        Log.e("SpotifyPlayer", throwable.getMessage(), throwable);
+                        Toast.makeText(pContext, "Can't connect with Spotify Player", Toast.LENGTH_SHORT).show();
                         // Something went wrong when attempting to connect! Handle errors here
                     }
                 });
     }
 
-    private void connected(){
+
+
+    public void playTrack(String pTRackId, TextView pTextView){
+        String trackURI = "spotify:track:"+pTRackId;
+
         //Reproduce una playlist, el parametro es el codigo de la playlist en spotify
-        mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:7wIcYj7ZvSLnTu2nFY4i6j");
+        mSpotifyAppRemote.getPlayerApi().play(trackURI);
 
         //Obtiene el nombre de la canción que está reproduciendo.
         // Subscribe to PlayerState
@@ -64,12 +69,15 @@ public class Spotify {
                 .setEventCallback(playerState -> {
                     final Track track = playerState.track;
                     if (track != null) {
-                        Log.d("MainActivity", track.name + " by " + track.artist.name);
+                        String trackInfo = "Playing: " + track.name + " by " + track.artist.name;
+                        pTextView.setText( trackInfo);
+                        Log.d("SpotifyPlayer", trackInfo);
                     }
                 });
     }
 
     public void shutDown(){
+        mSpotifyAppRemote.getPlayerApi().pause();
         SpotifyAppRemote.disconnect(mSpotifyAppRemote);
     }
 

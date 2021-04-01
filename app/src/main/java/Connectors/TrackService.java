@@ -41,11 +41,10 @@ public class TrackService {
     }
 
 
-    ///Esto es super importante omg si sirvió jejeps
-    public void getAlbumName() {
+    public void getAlbumName(String pAlbumID) {
 
         try {
-            spotify.getAlbum("1GbtB4zTqAsyfZEsm1RZfx", new Callback<Album>() {
+            spotify.getAlbum(pAlbumID, new Callback<Album>() {
                 @Override
                 public void success(Album album, Response response) {
                     Log.d("Album success", album.name);
@@ -53,69 +52,61 @@ public class TrackService {
 
                 @Override
                 public void failure(RetrofitError error) {
-                    Log.d("Album failure", error.toString());
+                    Log.e("Album failure", error.toString());
                 }
             });
         } catch (RetrofitError error) {
             SpotifyError spotifyError = SpotifyError.fromRetrofitError(error);
-            // handle error
+            Log.d("PlaylistName failure", spotifyError.toString());
         }
     }
 
-    ///Esto es super importante omg si sirvió jejeps
-    public void getPlayListName() {
-
+    public void getPlayListName(String pPlaylistID) {
         try {
-            spotify.getPlaylist(sharedPreferences.getString("userid", ""), "7wIcYj7ZvSLnTu2nFY4i6j", new SpotifyCallback<Playlist>() {
+            spotify.getPlaylist(sharedPreferences.getString("userid", ""), pPlaylistID, new SpotifyCallback<Playlist>() {
                 @Override
                 public void success(Playlist playlist, Response response) {
-                    Log.d("playlist success", playlist.name);
-
+                    Log.d("PlaylistName success", playlist.name);
                 }
-
                 @Override
                 public void failure(SpotifyError error) {
-                    Log.d("playlist failure", error.toString());
+                    Log.e("PlaylistName failure", error.toString());
                 }
             });
         } catch (RetrofitError error) {
             SpotifyError spotifyError = SpotifyError.fromRetrofitError(error);
-            // handle error
+            Log.d("PlaylistName failure", spotifyError.toString());
         }
-
-
-
-        //Log.d("Nombre de la cosa", playlistone[0].name);
     }
 
-    public void getPlaylistTracks(ArrayList<Track> localPlayList, ListView pListView, ArrayAdapter<Track> pAdapterTrack, Context pContext ){
+    public void getPlaylistTracks(String pPlaylistID, ArrayList<Track> localPlayList, ListView pListView, ArrayAdapter<Track> pAdapterTrack, Context pContext ){
         try {
-            spotify.getPlaylistTracks(sharedPreferences.getString("userid", ""), "7wIcYj7ZvSLnTu2nFY4i6j", new SpotifyCallback<Pager<PlaylistTrack>>() {
+            spotify.getPlaylistTracks(sharedPreferences.getString("userid", ""), pPlaylistID, new SpotifyCallback<Pager<PlaylistTrack>>() {
                 @Override
                 public void success(Pager<PlaylistTrack> playlistTrackPager, Response response) {
-                    Log.e("TEST", "GOT the tracks in playlist");
+                    Log.d("GetTracks Success", "GOT the tracks in playlist");
                     List<PlaylistTrack> items = playlistTrackPager.items;
 
+                    //Carga las cacnciones en el List View
                     loadPlaylistTracksListView( localPlayList, items,pListView,pAdapterTrack,pContext);
 
                     for( PlaylistTrack pt : items){
-                        Log.e("Track", pt.track.name + " - " + pt.track.id);
+                        Log.i("Tracks from Playlist", pt.track.name + " - " + pt.track.id);
                     }
-
                 }
-
                 @Override
                 public void failure(SpotifyError spotifyError) {
-                    Log.e("TEST", "Could not get playlist tracks");
+                    Log.e("GetTracks Failure", "Could not get playlist tracks");
 
                 }
             });} catch (RetrofitError error) {
             SpotifyError spotifyError = SpotifyError.fromRetrofitError(error);
-            // handle error
+            Log.e("GetTracks Failure", spotifyError.toString());
         }
     }
 
     private void loadPlaylistTracksListView(ArrayList<Track> pLocalPlayList, List<PlaylistTrack> pAPITrackList, ListView pListView, ArrayAdapter<Track> pAdapterTrack, Context pContext){
+        pLocalPlayList.clear();
         for( PlaylistTrack pt : pAPITrackList){
             Track track = new Track(pt.track.id,pt.track.name);
             pLocalPlayList.add(track);
@@ -124,30 +115,28 @@ public class TrackService {
         pListView.setAdapter( pAdapterTrack);
     }
 
-    public void addTrackToPlaylist(){
+    public void addTrackToPlaylist(String pTrackId, String pPLaylistId){
+        String trackURI = "spotify:track:" + pTrackId;
+
         Map<String, Object> query = new HashMap<>();
         Map<String, Object> body = new HashMap<>();
-        query.put("uris", "spotify:track:2MfgdGJUFyZAprtuOEujRb");
-
+        query.put("uris", trackURI);
         try {
-            spotify.addTracksToPlaylist(sharedPreferences.getString("userid", ""), "7wIcYj7ZvSLnTu2nFY4i6j",
+            spotify.addTracksToPlaylist(sharedPreferences.getString("userid", ""), pPLaylistId,
                     query, body, new Callback<Pager<PlaylistTrack>>() {
                         @Override
                         public void success(Pager<PlaylistTrack> playlistTrackPager, Response response) {
-                            Log.d("Succes Add Track", "Success in adding tracks");
-
+                            Log.d("Add Track PL Succes", "Success in adding tracks");
                         }
                         @Override
                         public void failure(RetrofitError error) {
-                            Log.d("Error Add Track", error.getUrl());
-
+                            Log.e("Add Track PL Failure", error.getUrl());
                         }
                     });
         } catch (RetrofitError error) {
             SpotifyError spotifyError = SpotifyError.fromRetrofitError(error);
-            // handle error
+            Log.e("Add Track PL Failure", spotifyError.toString());
         }
-
     }
 
 

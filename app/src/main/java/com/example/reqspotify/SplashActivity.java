@@ -7,6 +7,9 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
+import android.view.animation.Animation;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
@@ -20,6 +23,8 @@ public class SplashActivity extends AppCompatActivity {
 
     private SharedPreferences.Editor editor;
     private SharedPreferences msharedPreferences;
+
+    private ProgressBar progressBar;
 
     private RequestQueue queue;
 
@@ -35,9 +40,11 @@ public class SplashActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         setContentView(R.layout.activity_splash);
 
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.animate();
+
 
         authenticateSpotify();
-
         msharedPreferences = this.getSharedPreferences("SPOTIFY", 0);
         queue = Volley.newRequestQueue(this);
     }
@@ -85,16 +92,22 @@ public class SplashActivity extends AppCompatActivity {
                     Log.d("STARTING", "GOT AUTH TOKEN" + response.getAccessToken());
                     editor.apply();
                     waitForUserInfo();
+                    progressBar.clearAnimation();
                     break;
 
                 // Auth flow returned an error
                 case ERROR:
                     Log.d("STARTING", "Whooouuups.. There was a problem... With logIn");
+                    Toast.makeText(this, "Whoooups, there was a problem, please close and open the app!", Toast.LENGTH_LONG).show();
+                    progressBar.clearAnimation();
                     // Handle error response
                     break;
                 // Most likely auth flow was cancelled
                 default:
                     Log.d("STARTING", "Something happened...Don't know what...");
+                    progressBar.clearAnimation();
+                    Toast.makeText(this, "Whoooups, there was a problem, please close and open the app!", Toast.LENGTH_LONG).show();
+
                     // Handle other cases
             }
         }

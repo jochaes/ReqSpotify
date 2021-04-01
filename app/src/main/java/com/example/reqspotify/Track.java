@@ -14,10 +14,7 @@ public class Track {
 
     @Override
     public String toString() {
-        return "Song{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                '}';
+        return getName();
     }
 
     public String getId() {
