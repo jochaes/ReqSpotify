@@ -56,6 +56,7 @@ public class SplashActivity extends AppCompatActivity {
             User user = userService.getUser();
             editor = getSharedPreferences("SPOTIFY", 0).edit();
             editor.putString("userid", user.id);
+            editor.putString("userName", user.display_name);
             Log.d("STARTING", "GOT USER INFORMATION");
             // We use commit instead of apply because we need the information stored immediately
             editor.commit();
@@ -91,12 +92,9 @@ public class SplashActivity extends AppCompatActivity {
                     Log.d("STARTING", "Whooouuups.. There was a problem... With logIn");
                     // Handle error response
                     break;
-
                 // Most likely auth flow was cancelled
                 default:
                     Log.d("STARTING", "Something happened...Don't know what...");
-
-                    
                     // Handle other cases
             }
         }

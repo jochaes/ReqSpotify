@@ -1,4 +1,4 @@
-package com.example.reqspotify;
+package Connectors;
 
 import android.content.Context;
 import android.util.Log;
@@ -16,6 +16,7 @@ import com.spotify.protocol.types.Track;
 public class Spotify {
     private static String CLIENT_ID = "";
     private static String REDIRECT_URI = "";
+
     private SpotifyAppRemote mSpotifyAppRemote;
     private ConnectionParams connectionParams;
 
@@ -39,7 +40,6 @@ public class Spotify {
                     public void onConnected(SpotifyAppRemote spotifyAppRemote) {
                         mSpotifyAppRemote = spotifyAppRemote;
                         Log.d("MainActivity", "Connected! Yay!");
-
                         // Now you can start interacting with App Remote
                         connected();
                     }
@@ -48,7 +48,6 @@ public class Spotify {
                     @Override
                     public void onFailure(Throwable throwable) {
                         Log.e("MainActivity", throwable.getMessage(), throwable);
-
                         // Something went wrong when attempting to connect! Handle errors here
                     }
                 });

@@ -1,14 +1,23 @@
 package com.example.reqspotify;
 
 
-public class Song {
+public class Track {
 
     private String id;
     private String name;
 
-    public Song(String id, String name) {
+    public Track(String id, String name) {
         this.name = name;
         this.id = id;
+    }
+
+
+    @Override
+    public String toString() {
+        return "Song{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                '}';
     }
 
     public String getId() {
