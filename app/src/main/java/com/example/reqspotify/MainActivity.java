@@ -23,23 +23,29 @@ import Connectors.TrackService;
 
 
 public class MainActivity extends AppCompatActivity  {
+    //Servicio para utilizar el Wrapper del API que se comunica con Spotify,
+    // para pedir la lista de reproducción y guardar canciones en la lista
     private TrackService trackService;
+
+    //Arrraylist que guarda la lista de canciones de la playlist.
     private ArrayList<Track> PlaylistTracks;
 
+    //Se conecta con el SDK de spotify, funciona como reproductor
     Spotify spotifyPlayer;
 
 
-    private final String PLaylistID = "7wIcYj7ZvSLnTu2nFY4i6j";
-    public TextView text_NowPLaying;
-    public ListView listView_PlaylistTracks;
-    public ArrayAdapter<Track> ArrayAdapter;
+    private final String PLaylistID = "7wIcYj7ZvSLnTu2nFY4i6j"; //Id de Spotify de la playlist REqs
+    public TextView text_NowPLaying;                            //Texr view que dice que cancion está sonando
+    public ListView listView_PlaylistTracks;                    //List View de las canciones de la playlist
+    public ArrayAdapter<Track> ArrayAdapter;                    //Adaptador del List View
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        text_NowPLaying = findViewById(R.id.text_NowPLaying);
-        listView_PlaylistTracks = findViewById(R.id.listView_PlaylistTracks);
+        getSupportActionBar().hide();
+        text_NowPLaying = findViewById(R.id.text_NowPLaying);   //Busca por id el componente de texto del layout
+        listView_PlaylistTracks = findViewById(R.id.listView_PlaylistTracks); // Busca por id el componente de ListView del layout
 
     }
 
@@ -47,19 +53,22 @@ public class MainActivity extends AppCompatActivity  {
     @Override
     protected void onStart() {
         super.onStart();
-        spotifyPlayer = new Spotify();
-        spotifyPlayer.connect(this);
+        spotifyPlayer = new Spotify();                          //Instancia un objeto de Spotify
+        spotifyPlayer.connect(this);                  //Se conecta meidante SDK a la app de spotify
 
-        trackService = new TrackService(getApplicationContext());
-        PlaylistTracks = new ArrayList<Track>();
+        trackService = new TrackService(getApplicationContext()); //Se instancia un objeto de trackservice que se conecta por medio del api a spotify
+        PlaylistTracks = new ArrayList<Track>();                  //Instanciación del arrraylist
         text_NowPLaying.setText("Now PLaying: Nothing...Touch a song below to play...");
 
+        //Se agrega un listener para que cuando se selecciones una cancion del list view,
+        //  se comunicque con el SDK y reproduzca la canción
         listView_PlaylistTracks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Track track = PlaylistTracks.get(position);
-                Log.d("TrackName", track.toString());
-                playTrack(track.getId(), text_NowPLaying);
+
+                Track track = PlaylistTracks.get(position);     //Busca la canción
+                Log.d("TrackName", track.toString());      //LOG del nombre
+                playTrack(track.getId(), text_NowPLaying);      //Envía a reproducir la canción
             }
 
         });
@@ -69,17 +78,30 @@ public class MainActivity extends AppCompatActivity  {
 
     }
 
+    /**
+     * Reproduce una canción utilizando el SDK de spotify.
+     * @param pTrackId  Identificador de la canción en spotify. URI pero solo el id"
+     * @param pTextView Text view, para cambiar el texto
+     */
     private void playTrack(String pTrackId, TextView pTextView){
         spotifyPlayer.playTrack(pTrackId,pTextView);
     }
 
+    /**
+     * Añade una cancion a la playlist
+     * @param view Cuando se presiona el boton, Accede a este método.
+     */
     public void addTrackToPlaylist(View view){
-        String randomSongID = "4uLU6hMCjMI75M1A2tKUQC";
-        trackService.addTrackToPlaylist(randomSongID, PLaylistID );
-        getPLaylistTracks();
+        String randomSongID = "4uLU6hMCjMI75M1A2tKUQC";     //Id Random para añadirlo a la playlist
+
+        trackService.addTrackToPlaylist(randomSongID, PLaylistID ); //Añade la cancion a la playlist
+        getPLaylistTracks();                                        //Actualiza el textview
     }
 
 
+    /**
+     * Carga las canciones de la playlist en el textview
+     */
     private void getPLaylistTracks(){
         trackService.getPlaylistTracks(PLaylistID, PlaylistTracks, listView_PlaylistTracks,ArrayAdapter,this);
     }

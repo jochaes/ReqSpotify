@@ -1,10 +1,12 @@
 package com.example.reqspotify;
 
-
+/**
+ * Clase para guardar la info de las canciones
+ */
 public class Track {
 
-    private String id;
-    private String name;
+    private String id;                      //Id del URI de Spotify
+    private String name;                    //Nombre de la canción
 
     public Track(String id, String name) {
         this.name = name;
