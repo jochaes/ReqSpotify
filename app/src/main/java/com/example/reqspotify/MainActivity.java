@@ -114,9 +114,17 @@ public class MainActivity extends AppCompatActivity  {
         getPLaylistTracks();                                        //Actualiza el textview
     }
 
+    /**
+     * Borra una cancion a la playlist
+     * @param view Cuando se presiona el boton, Accede a este método.
+     */
     public void deleteTrackFromPlaylist(View view){
-        //Todo
-
+        SongID = songID_input.getText().toString();
+        if (SongID.matches("")) {
+            return;
+        }
+        trackService.deleteTrackFromPlaylist(SongID,PLaylistID);
+        getPLaylistTracks();
     }
 
     /**

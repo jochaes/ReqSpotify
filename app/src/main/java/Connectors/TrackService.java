@@ -183,7 +183,7 @@ public class TrackService {
         }
     }
 
-    public void deleteTrackFromPlaylist(String pTrackId, string pPlaylistId){
+    public void deleteTrackFromPlaylist(String pTrackId, String pPlaylistId){
         String trackURI = "spotify:track:" + pTrackId;              //Forma el URI
         try {
             //Wrapper de Kaeees para borrar tracks a la playlist
