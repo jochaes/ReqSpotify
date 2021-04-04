@@ -183,4 +183,28 @@ public class TrackService {
         }
     }
 
+    public void deleteTrackFromPlaylist(String pTrackId, string pPlaylistId){
+        String trackURI = "spotify:track:" + pTrackId;              //Forma el URI
+
+        Map<String, Object> query = new HashMap<>();                //Query con la info del track
+        Map<String, Object> body = new HashMap<>();
+        query.put("uris", trackURI);
+        try {
+            //Wrapper de Kaeees para borrar tracks a la playlist
+            spotify.removeTracksFromPlaylist(sharedPreferences.getString("userid", ""), pPLaylistId,
+                    query, body, new Callback<Pager<PlaylistTrack>>() {
+                        @Override
+                        public void success(Pager<PlaylistTrack> playlistTrackPager, Response response) {
+                            Log.d("Remove Track PL Succes", "Success in Removing tracks");
+                        }
+                        @Override
+                        public void failure(RetrofitError error) {
+                            Log.e("Remove Track PL Failure", error.getUrl());
+                        }
+                    });
+        } catch (RetrofitError error) {
+            SpotifyError spotifyError = SpotifyError.fromRetrofitError(error);
+            Log.e("Remove Track PL Failure", spotifyError.toString());
+        }
+    }
 }

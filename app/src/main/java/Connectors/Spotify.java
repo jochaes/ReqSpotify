@@ -80,6 +80,16 @@ public class Spotify {
                 });
     }
 
+    public void pauseTrack() {
+        mSpotifyAppRemote.getPlayerApi().pause();
+    }
+
+    public void resumeTrack(){
+        mSpotifyAppRemote.getPlayerApi().resume();
+    }
+
+
+
     /**
      * Se desconecta del AppRemote de spotify
      */
