@@ -34,10 +34,11 @@ public class MainActivity extends AppCompatActivity  {
     //Se conecta con el SDK de spotify, funciona como reproductor
     Spotify spotifyPlayer;
 
-    EditText songID_input; // Para guardar el texto introducido
+    EditText songID_input;
 
     private String SongID; //Id introducido por el usuario de una canción de spotify
-    private final String PLaylistID = "7wIcYj7ZvSLnTu2nFY4i6j"; //Id de Spotify de la playlist REqs
+    //private final String PLaylistID = "7wIcYj7ZvSLnTu2nFY4i6j"; //Id de Spotify de la playlist REqs
+    private final String PLaylistID = "2J6mJOjC5Ub7uAAdA2Uf1G"; //Id de spotif de la playlist Hola Joshua
     public TextView text_NowPLaying;                            //Texr view que dice que cancion está sonando
     public ListView listView_PlaylistTracks;                    //List View de las canciones de la playlist
     public ArrayAdapter<Track> ArrayAdapter;                    //Adaptador del List View
@@ -90,11 +91,11 @@ public class MainActivity extends AppCompatActivity  {
         spotifyPlayer.playTrack(pTrackId,pTextView);
     }
 
-    private void resumeTrack(View view){
+    public void resumeTrack(View view){
         spotifyPlayer.resumeTrack();
     }
 
-    private void pauseTrack(View view){
+    public void pauseTrack(View view){
         spotifyPlayer.pauseTrack();
     }
 
@@ -104,13 +105,13 @@ public class MainActivity extends AppCompatActivity  {
      */
     public void addTrackToPlaylist(View view){
 
-        Failsafe = "4uLU6hMCjMI75M1A2tKUQC";     //Id Random para añadirlo a la playlist
         SongID = songID_input.getText().toString();
         if (SongID.matches("")) {
-            trackService.addTrackToPlaylist(Failsafe, PLaylistID ); //Añade una cancion a la playlist
+            songID_input.getText().clear();
             return;
         }
         trackService.addTrackToPlaylist(SongID, PLaylistID ); //Añade la cancion a la playlist
+        songID_input.getText().clear();
         getPLaylistTracks();                                        //Actualiza el textview
     }
 
@@ -120,6 +121,7 @@ public class MainActivity extends AppCompatActivity  {
      */
     public void deleteTrackFromPlaylist(View view){
         SongID = songID_input.getText().toString();
+        songID_input.getText().clear();
         if (SongID.matches("")) {
             return;
         }
