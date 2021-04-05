@@ -28,7 +28,7 @@ public class SplashActivity extends AppCompatActivity {
     private static final String CLIENT_ID = "69a48a944b0e4e8f908d0198a668fcdd";   //Id del cliente
     private static final String REDIRECT_URI = "reqspotify://callback";           //Redirect del cliente
     private static final int REQUEST_CODE = 1337;
-    private static final String SCOPES = "user-read-recently-played,user-library-modify,user-read-email,user-read-private,playlist-modify-public";  //Permisos qye ocupa la app para funcionar
+    private static final String SCOPES = "user-read-recently-played,user-library-modify,user-read-email,user-read-private,playlist-modify-public,playlist-modify-private,playlist-read-private,playlist-read-collaborative,user-follow-modify,user-follow-read,user-library-modify,user-library-read";  //Permisos que ocupa la app para funcionar
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

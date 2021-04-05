@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Adapter;
@@ -37,8 +38,9 @@ public class MainActivity extends AppCompatActivity  {
     EditText songID_input;
 
     private String SongID; //Id introducido por el usuario de una canción de spotify
+    private final String PLaylistID = "2QxyWlAp7iiSvuglz6qRl0";
     //private final String PLaylistID = "7wIcYj7ZvSLnTu2nFY4i6j"; //Id de Spotify de la playlist REqs
-    private final String PLaylistID = "2J6mJOjC5Ub7uAAdA2Uf1G"; //Id de spotif de la playlist Hola Joshua
+    //private final String PLaylistID = "2J6mJOjC5Ub7uAAdA2Uf1G"; //Id de spotif de la playlist Hola Joshua
     public TextView text_NowPLaying;                            //Texr view que dice que cancion está sonando
     public ListView listView_PlaylistTracks;                    //List View de las canciones de la playlist
     public ArrayAdapter<Track> ArrayAdapter;                    //Adaptador del List View
@@ -77,9 +79,14 @@ public class MainActivity extends AppCompatActivity  {
 
         });
 
-        //Carga la playlist en el list view
-        getPLaylistTracks();
+        getPlaylists();
 
+        (new Handler()).postDelayed(this::getPLaylistTracks, 3000);
+
+    }
+
+    private void getPlaylists(){
+        trackService.getPlayLists();
     }
 
     /**
@@ -110,7 +117,7 @@ public class MainActivity extends AppCompatActivity  {
             songID_input.getText().clear();
             return;
         }
-        trackService.addTrackToPlaylist(SongID, PLaylistID ); //Añade la cancion a la playlist
+        trackService.addTrackToPlaylist(SongID ); //Añade la cancion a la playlist
         songID_input.getText().clear();
         getPLaylistTracks();                                        //Actualiza el textview
     }
@@ -125,7 +132,7 @@ public class MainActivity extends AppCompatActivity  {
         if (SongID.matches("")) {
             return;
         }
-        trackService.deleteTrackFromPlaylist(SongID,PLaylistID);
+        trackService.deleteTrackFromPlaylist(SongID);
         getPLaylistTracks();
     }
 
@@ -133,7 +140,7 @@ public class MainActivity extends AppCompatActivity  {
      * Carga las canciones de la playlist en el textview
      */
     private void getPLaylistTracks(){
-        trackService.getPlaylistTracks(PLaylistID, PlaylistTracks, listView_PlaylistTracks,ArrayAdapter,this);
+        trackService.getPlaylistTracks(PlaylistTracks, listView_PlaylistTracks,ArrayAdapter,this);
     }
 
 

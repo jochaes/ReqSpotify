@@ -7,14 +7,20 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.example.reqspotify.Track;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -24,7 +30,9 @@ import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.Playlist;
+import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import kaaes.spotify.webapi.android.models.PlaylistTrack;
+import kaaes.spotify.webapi.android.models.TrackToRemove;
 import kaaes.spotify.webapi.android.models.Tracks;
 import kaaes.spotify.webapi.android.models.TracksToRemove;
 import kaaes.spotify.webapi.android.models.SnapshotId;
@@ -43,6 +51,8 @@ public class TrackService {
 
     SpotifyApi api;                               //Wrapper Kaees
     SpotifyService spotify;                       //wrapper Kaees
+    String playlistID = "x";
+    String playlistNAME = "REQs-JJ-2021";
 
     public TrackService(Context context) {
         sharedPreferences = context.getSharedPreferences("SPOTIFY", 0);
@@ -50,6 +60,42 @@ public class TrackService {
         api.setAccessToken(sharedPreferences.getString("token", ""));
         spotify = api.getService();  //Se conecta con espotify
     }
+
+    public void addPlaylist(){
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("name", playlistNAME);
+        body.put("description", "Playlist Joshua y Josue, Req, 2021");
+        body.put("public", "false");
+
+        try {
+            //Wrapper de Kaees, get album
+            spotify.createPlaylist(sharedPreferences.getString("userid", ""), body, new Callback<Playlist>() {
+                @Override
+                public void success(Playlist playlist, Response response) {
+                    Log.d("Create Playlist success", playlist.name);
+                    Log.d("Create Playlist success", playlist.id);
+                    playlistID = playlist.id;
+                    addTrackToPlaylist("4u7EnebtmKWzUH433cf5Qv");
+                    addTrackToPlaylist("2aibwv5hGXSgw7Yru8IYTO");
+                    addTrackToPlaylist("0pqnGHJpmpxLKifKRmU6WP");
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.d("Create Playlist failure","PLaylist not created");
+
+                }
+            });
+        } catch (RetrofitError error) {
+            SpotifyError spotifyError = SpotifyError.fromRetrofitError(error);
+            Log.d("PlaylistName failure", spotifyError.toString());
+        }
+
+    }
+
+
+
 
 
     /**
@@ -81,39 +127,52 @@ public class TrackService {
 
     /**
      * Busca el nombre de la playlist en spotify, mediante el Id de la playlist
-     * @param pPlaylistID ID del URI de la plylist
+     *  pPlaylistID ID del URI de la plylist
      */
-    public void getPlayListName(String pPlaylistID) {
+    public void getPlayLists() {
         try {
             //Wrapper de Kaees para buscar el Nombre de la Playlist
-            spotify.getPlaylist(sharedPreferences.getString("userid", ""), pPlaylistID, new SpotifyCallback<Playlist>() {
+            spotify.getPlaylists(sharedPreferences.getString("userid", ""), new SpotifyCallback<Pager<PlaylistSimple>>() {
                 @Override
-                public void success(Playlist playlist, Response response) {
-                    Log.d("PlaylistName success", playlist.name);
+                public void failure(SpotifyError spotifyError) {
+                    Log.d("GET PLAYLIST FAILURE", spotifyError.toString());
                 }
+
                 @Override
-                public void failure(SpotifyError error) {
-                    Log.e("PlaylistName failure", error.toString());
+                public void success(Pager<PlaylistSimple> playlistSimplePager, Response response) {
+                    List<PlaylistSimple> items = playlistSimplePager.items;
+                    for( PlaylistSimple pt : items){
+                        Log.i("Tracks from Playlist", pt.name + " - " + pt.id);
+                        if (pt.name.equals(playlistNAME)){
+                            Log.d("ENCONTRADOENCONTRADO", "success: ");
+                            playlistID = pt.id;
+                            break;
+                        }
+                    }
+                    if(playlistID.equals("x")){
+                        addPlaylist();
+                    }
                 }
             });
         } catch (RetrofitError error) {
             SpotifyError spotifyError = SpotifyError.fromRetrofitError(error);
             Log.d("PlaylistName failure", spotifyError.toString());
+
         }
     }
 
     /**
      * Get de las canciones dentro de una PLaylist
-     * @param pPlaylistID   Id de la playlist
+     *  pPlaylistID   Id de la playlist
      * @param localPlayList ArrayList donde se va a guardar las canciones
      * @param pListView     Listview donde se van a mostrar las canciones
      * @param pAdapterTrack Adapter del listview
      * @param pContext      contexto del main activity
      */
-    public void getPlaylistTracks(String pPlaylistID, ArrayList<Track> localPlayList, ListView pListView, ArrayAdapter<Track> pAdapterTrack, Context pContext ){
+    public void getPlaylistTracks( ArrayList<Track> localPlayList, ListView pListView, ArrayAdapter<Track> pAdapterTrack, Context pContext ){
         try {
             //Wrapper de Kaees para getplaylistTracks
-            spotify.getPlaylistTracks(sharedPreferences.getString("userid", ""), pPlaylistID, new SpotifyCallback<Pager<PlaylistTrack>>() {
+            spotify.getPlaylistTracks(sharedPreferences.getString("userid", ""), playlistID, new SpotifyCallback<Pager<PlaylistTrack>>() {
                 //Trae las canciones en un playListTrackPager y las carga q
                 @Override
                 public void success(Pager<PlaylistTrack> playlistTrackPager, Response response) {
@@ -161,9 +220,9 @@ public class TrackService {
     /**
      * Añade una canción a la playlist
      * @param pTrackId Track ID de uri de la cancion en spotify
-     * @param pPLaylistId Lista donde se va a guardar esa canción
+     *  PLaylistId Lista donde se va a guardar esa canción
      */
-    public void addTrackToPlaylist(String pTrackId, String pPLaylistId){
+    public void addTrackToPlaylist(String pTrackId){
         String trackURI = "spotify:track:" + pTrackId;              //Forma el URI
 
         Map<String, Object> query = new HashMap<>();                //Query con la infro del track
@@ -171,7 +230,7 @@ public class TrackService {
         query.put("uris", trackURI);
         try {
             //Wrapper de Kaees para añadir tracks a la playlist
-            spotify.addTracksToPlaylist(sharedPreferences.getString("userid", ""), pPLaylistId,
+            spotify.addTracksToPlaylist(sharedPreferences.getString("userid", ""), playlistID,
                     query, body, new Callback<Pager<PlaylistTrack>>() {
                         @Override
                         public void success(Pager<PlaylistTrack> playlistTrackPager, Response response) {
@@ -188,14 +247,22 @@ public class TrackService {
         }
     }
 
-    public void deleteTrackFromPlaylist(String pTrackId, String pPlaylistId){
+    public void deleteTrackFromPlaylist(String pTrackId){
         String trackURI = "spotify:track:" + pTrackId;              //Forma el URI
-        Parcel parcel = Parcel.obtain(); // Parcel para mandar el URI de la cancion
-        parcel.writeValue(trackURI);
+//        Parcel parcel = Parcel.obtain(); // Parcel para mandar el URI de la cancion
+//        parcel.writeValue(trackURI);
+
+        TrackToRemove trackToRemove = new TrackToRemove();
+        trackToRemove.uri = trackURI;
+
+        ArrayList<TrackToRemove> listtrackToRemove = new ArrayList<>();
+        listtrackToRemove.add(trackToRemove);
         TracksToRemove toRemove = new TracksToRemove();
+        toRemove.tracks = listtrackToRemove;
+
         try {
             //Wrapper de Kaeees para borrar tracks a la playlist
-            spotify.removeTracksFromPlaylist(sharedPreferences.getString("userid", ""), pPlaylistId, toRemove, new Callback<SnapshotId>() {
+            spotify.removeTracksFromPlaylist(sharedPreferences.getString("userid", ""), playlistID, toRemove, new Callback<SnapshotId>() {
                         @Override
                         public void success(SnapshotId idPlaylist, Response response) {
                             Log.d("Remove Track PL Success", "Success in Removing tracks");
