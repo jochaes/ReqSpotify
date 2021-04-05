@@ -10,6 +10,7 @@ import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,11 +34,15 @@ public class MainActivity extends AppCompatActivity  {
     //Se conecta con el SDK de spotify, funciona como reproductor
     Spotify spotifyPlayer;
 
+    EditText songID_input;
 
-    private final String PLaylistID = "7wIcYj7ZvSLnTu2nFY4i6j"; //Id de Spotify de la playlist REqs
+    private String SongID; //Id introducido por el usuario de una canción de spotify
+    //private final String PLaylistID = "7wIcYj7ZvSLnTu2nFY4i6j"; //Id de Spotify de la playlist REqs
+    private final String PLaylistID = "2J6mJOjC5Ub7uAAdA2Uf1G"; //Id de spotif de la playlist Hola Joshua
     public TextView text_NowPLaying;                            //Texr view que dice que cancion está sonando
     public ListView listView_PlaylistTracks;                    //List View de las canciones de la playlist
     public ArrayAdapter<Track> ArrayAdapter;                    //Adaptador del List View
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +51,7 @@ public class MainActivity extends AppCompatActivity  {
         getSupportActionBar().hide();
         text_NowPLaying = findViewById(R.id.text_NowPLaying);   //Busca por id el componente de texto del layout
         listView_PlaylistTracks = findViewById(R.id.listView_PlaylistTracks); // Busca por id el componente de ListView del layout
-
+        songID_input = (EditText) findViewById(R.id.txtin_SongID); // Busca por id el componente de EditText del layout
     }
 
 
@@ -54,7 +59,7 @@ public class MainActivity extends AppCompatActivity  {
     protected void onStart() {
         super.onStart();
         spotifyPlayer = new Spotify();                          //Instancia un objeto de Spotify
-        spotifyPlayer.connect(this);                  //Se conecta meidante SDK a la app de spotify
+        spotifyPlayer.connect(this);                  //Se conecta mediante SDK a la app de spotify
 
         trackService = new TrackService(getApplicationContext()); //Se instancia un objeto de trackservice que se conecta por medio del api a spotify
         PlaylistTracks = new ArrayList<Track>();                  //Instanciación del arrraylist
@@ -65,7 +70,6 @@ public class MainActivity extends AppCompatActivity  {
         listView_PlaylistTracks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
                 Track track = PlaylistTracks.get(position);     //Busca la canción
                 Log.d("TrackName", track.toString());      //LOG del nombre
                 playTrack(track.getId(), text_NowPLaying);      //Envía a reproducir la canción
@@ -87,17 +91,43 @@ public class MainActivity extends AppCompatActivity  {
         spotifyPlayer.playTrack(pTrackId,pTextView);
     }
 
+    public void resumeTrack(View view){
+        spotifyPlayer.resumeTrack();
+    }
+
+    public void pauseTrack(View view){
+        spotifyPlayer.pauseTrack();
+    }
+
     /**
      * Añade una cancion a la playlist
      * @param view Cuando se presiona el boton, Accede a este método.
      */
     public void addTrackToPlaylist(View view){
-        String randomSongID = "4uLU6hMCjMI75M1A2tKUQC";     //Id Random para añadirlo a la playlist
 
-        trackService.addTrackToPlaylist(randomSongID, PLaylistID ); //Añade la cancion a la playlist
+        SongID = songID_input.getText().toString();
+        if (SongID.matches("")) {
+            songID_input.getText().clear();
+            return;
+        }
+        trackService.addTrackToPlaylist(SongID, PLaylistID ); //Añade la cancion a la playlist
+        songID_input.getText().clear();
         getPLaylistTracks();                                        //Actualiza el textview
     }
 
+    /**
+     * Borra una cancion a la playlist
+     * @param view Cuando se presiona el boton, Accede a este método.
+     */
+    public void deleteTrackFromPlaylist(View view){
+        SongID = songID_input.getText().toString();
+        songID_input.getText().clear();
+        if (SongID.matches("")) {
+            return;
+        }
+        trackService.deleteTrackFromPlaylist(SongID,PLaylistID);
+        getPLaylistTracks();
+    }
 
     /**
      * Carga las canciones de la playlist en el textview

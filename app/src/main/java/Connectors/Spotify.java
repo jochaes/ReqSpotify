@@ -81,6 +81,22 @@ public class Spotify {
     }
 
     /**
+    * Pausa la canción que se está reproduciendo actualmente
+    */
+    public void pauseTrack() {
+        mSpotifyAppRemote.getPlayerApi().pause();
+    }
+
+    /**
+     * Rerproduce la canción a partir del ultimo punto de pausa
+     */
+    public void resumeTrack(){
+        mSpotifyAppRemote.getPlayerApi().resume();
+    }
+
+
+
+    /**
      * Se desconecta del AppRemote de spotify
      */
     public void shutDown(){

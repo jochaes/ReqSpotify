@@ -2,6 +2,7 @@ package Connectors;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Parcel;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -9,6 +10,7 @@ import android.widget.ListView;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.example.reqspotify.Track;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +25,9 @@ import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistTrack;
+import kaaes.spotify.webapi.android.models.Tracks;
+import kaaes.spotify.webapi.android.models.TracksToRemove;
+import kaaes.spotify.webapi.android.models.SnapshotId;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -183,4 +188,26 @@ public class TrackService {
         }
     }
 
+    public void deleteTrackFromPlaylist(String pTrackId, String pPlaylistId){
+        String trackURI = "spotify:track:" + pTrackId;              //Forma el URI
+        Parcel parcel = Parcel.obtain(); // Parcel para mandar el URI de la cancion
+        parcel.writeValue(trackURI);
+        TracksToRemove toRemove = new TracksToRemove();
+        try {
+            //Wrapper de Kaeees para borrar tracks a la playlist
+            spotify.removeTracksFromPlaylist(sharedPreferences.getString("userid", ""), pPlaylistId, toRemove, new Callback<SnapshotId>() {
+                        @Override
+                        public void success(SnapshotId idPlaylist, Response response) {
+                            Log.d("Remove Track PL Success", "Success in Removing tracks");
+                        }
+                        @Override
+                        public void failure(RetrofitError error) {
+                            Log.e("Remove Track PL Failure", error.getUrl());
+                        }
+                    });
+        } catch (RetrofitError error) {
+            SpotifyError spotifyError = SpotifyError.fromRetrofitError(error);
+            Log.e("Remove Track PL Failure", spotifyError.toString());
+        }
+    }
 }
