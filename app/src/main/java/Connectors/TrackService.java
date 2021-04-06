@@ -51,8 +51,8 @@ public class TrackService {
 
     SpotifyApi api;                               //Wrapper Kaees
     SpotifyService spotify;                       //wrapper Kaees
-    String playlistID = "x";
-    String playlistNAME = "REQs-JJ-2021";
+    String playlistID = "x";                      //Id de la playlist
+    String playlistNAME = "REQs-JJ-2021";          //Nombre de la playlist que va a generar
 
     public TrackService(Context context) {
         sharedPreferences = context.getSharedPreferences("SPOTIFY", 0);
@@ -61,21 +61,26 @@ public class TrackService {
         spotify = api.getService();  //Se conecta con espotify
     }
 
+    /**
+     * Añade una nueva playlist al perfil de spotify, y añade tres canciones a esa playlist
+     */
     public void addPlaylist(){
 
-        Map<String, Object> body = new HashMap<>();
+        Map<String, Object> body = new HashMap<>();   //Body del request
         body.put("name", playlistNAME);
         body.put("description", "Playlist Joshua y Josue, Req, 2021");
         body.put("public", "false");
 
         try {
-            //Wrapper de Kaees, get album
+            //Wrapper de Kaees, create playlist
+            //Crea la playlist
             spotify.createPlaylist(sharedPreferences.getString("userid", ""), body, new Callback<Playlist>() {
                 @Override
                 public void success(Playlist playlist, Response response) {
                     Log.d("Create Playlist success", playlist.name);
                     Log.d("Create Playlist success", playlist.id);
                     playlistID = playlist.id;
+                    //Añade las tres canciones
                     addTrackToPlaylist("4u7EnebtmKWzUH433cf5Qv");
                     addTrackToPlaylist("2aibwv5hGXSgw7Yru8IYTO");
                     addTrackToPlaylist("0pqnGHJpmpxLKifKRmU6WP");

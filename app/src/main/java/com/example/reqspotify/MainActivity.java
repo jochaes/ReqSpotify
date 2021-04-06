@@ -78,9 +78,11 @@ public class MainActivity extends AppCompatActivity  {
             }
 
         });
-
+        
+        //Crea la playlist
         getPlaylists();
 
+        //Espera las canciones
         (new Handler()).postDelayed(this::getPLaylistTracks, 3000);
 
     }
